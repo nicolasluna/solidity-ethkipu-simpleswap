@@ -69,10 +69,8 @@ contract SimpleSwap is ERC20 {
         require(block.timestamp <= deadline, "Transaction expired");
         require(_tokenA == address(tokenA) && _tokenB == address(tokenB), "Invalid tokens");
 
-        uint256 _reserveA = reserveA;
-        uint256 _reserveB = reserveB;
         // calculate amounts with min amount
-        (amountA, amountB) = _calculateAmounts(amountADesired, amountBDesired, amountAMin, amountBMin, _reserveA, _reserveB);
+        (amountA, amountB) = _calculateAmounts(amountADesired, amountBDesired, amountAMin, amountBMin);
 
         // send tokens from user to this contract
         tokenA.transferFrom(msg.sender, address(this), amountA);
@@ -83,8 +81,8 @@ contract SimpleSwap is ERC20 {
             liquidity = _sqrt(amountA * amountB);
         } else {
             liquidity = _min(
-                (amountA * totalSupply()) / _reserveA,
-                (amountB * totalSupply()) / _reserveB
+                (amountA * totalSupply()) / reserveA,
+                (amountB * totalSupply()) / reserveB
             );
         }
 
@@ -108,21 +106,19 @@ contract SimpleSwap is ERC20 {
         uint amountADesired,
         uint amountBDesired,
         uint amountAMin,
-        uint amountBMin,
-        uint256 _reserveA,
-        uint256 _reserveB
+        uint amountBMin
     ) internal view returns (uint amountA, uint amountB) {
-        if (_reserveA == 0 && _reserveB == 0) {
+        if (reserveA == 0 && reserveB == 0) {
             amountA = amountADesired;
             amountB = amountBDesired;
         } else {
-            uint amountBOptimal = (amountADesired * _reserveB) / _reserveA;
+            uint amountBOptimal = (amountADesired * reserveB) / reserveA;
             if (amountBOptimal <= amountBDesired) {
                 require(amountBOptimal >= amountBMin, "amountB too low");
                 amountA = amountADesired;
                 amountB = amountBOptimal;
             } else {
-                uint amountAOptimal = (amountBDesired * _reserveA) / _reserveB;
+                uint amountAOptimal = (amountBDesired * reserveA) / reserveB;
                 require(amountAOptimal >= amountAMin, "amountA too low");
                 amountA = amountAOptimal;
                 amountB = amountBDesired;
@@ -259,9 +255,8 @@ contract SimpleSwap is ERC20 {
         address _tokenB) 
     external view returns (uint price) {
         require(_tokenA == address(tokenA) && _tokenB == address(tokenB), "Invalid tokens");
-        uint256 _reserveA;
-        require(_reserveA > 0 && reserveB > 0, "Invalid reserves");      
-        price = (reserveB * 1e18) / _reserveA;
+        require(reserveA > 0 && reserveB > 0, "Invalid reserves");      
+        price = (reserveB * 1e18) / reserveA;
     }
 
     /// @notice Calculates the output token amount based on input and reserves.
