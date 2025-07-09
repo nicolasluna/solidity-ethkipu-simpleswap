@@ -259,9 +259,10 @@ contract SimpleSwap is ERC20 {
         address _tokenB) 
     external view returns (uint price) {
         require(_tokenA == address(tokenA) && _tokenB == address(tokenB), "Invalid tokens");
-        uint256 _reserveA;
-        require(_reserveA > 0 && reserveB > 0, "Invalid reserves");      
-        price = (reserveB * 1e18) / _reserveA;
+        uint256 _reserveA = reserveA;
+        uint256 _reserveB = reserveB;
+        require(_reserveA > 0 && _reserveB > 0, "Invalid reserves");      
+        price = (_reserveB * 1e18) / _reserveA;
     }
 
     /// @notice Calculates the output token amount based on input and reserves.

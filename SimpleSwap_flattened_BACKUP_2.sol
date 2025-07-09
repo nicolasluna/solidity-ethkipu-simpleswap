@@ -620,7 +620,9 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
 // File: SimpleSwap.sol
 
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.0;
+
+
 
 /// @title Custom ERC20 Token Contract
 /// @notice This contract allows minting of a custom ERC20 token.
